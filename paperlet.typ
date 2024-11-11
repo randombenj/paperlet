@@ -27,7 +27,7 @@
     #super[#(i+1)]
     #author.affiliation
     #if "mail" in author.keys() [
-      #link("mailto:" + author.mail) \
+       —  #link("mailto:" + author.mail) \
     ]
   ]
 
