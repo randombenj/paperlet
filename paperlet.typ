@@ -12,24 +12,52 @@
     text(20pt, title, weight: 400)
   )
 
+  // Get unique affiliations
+  let unique-affiliations = ()
+  for author in authors [
+    #if not unique-affiliations.contains(author.affiliation) [
+      #unique-affiliations.push(author.affiliation)
+    ]
+  ]
 
+  let unique-mails = ()
+  for author in authors [
+    #if "mail" in author.keys() and not unique-mails.contains(author.mail) [
+      #unique-mails.push(author.mail)
+    ]
+  ]
 
   text(10pt,
     font: "STIX",
     authors.enumerate()
-    .map(((i, author)) => box[#author.name#super[#(i+1)]])
+    .map(((i, author)) => [
+      #box[
+        #author.name#super[
+          #(unique-affiliations.position(a => a == author.affiliation) + 1)#if "mail" in author.keys() [,\*]
+        ]
+      ]
+    ])
     .join(", ")
   )
   parbreak()
 
-  for (i, author) in authors.enumerate() [
+  // Print unique affiliations with superscript indices
+  for (i, affiliation) in unique-affiliations.enumerate() [
     #set text(9pt, font: "STIX")
     #super[#(i+1)]
-    #author.affiliation
-    #if "mail" in author.keys() [
-       —  #link("mailto:" + author.mail) \
-    ]
+    #affiliation \
+    #v(-4pt)
   ]
+
+  v(4pt)
+
+  super[\*]
+  text(
+    9pt,
+    font: "STIX",
+    unique-mails.map((mail)  => link("mailto:" + mail))
+    .join(", ")
+  )
 
   v(8pt)
   set text(10pt)
@@ -39,8 +67,9 @@
 
   if keywords != () [
     #v(3pt)
-    #set text(font: "STIX")
-    Keywords: #if type(keywords) == str [
+    #set text(9pt, font: "STIX")
+    Keywords:
+    #if type(keywords) == str [
       #keywords
     ] else [
       #keywords.join(", ")
@@ -49,8 +78,6 @@
   line(length: 100%, stroke: (paint: gray, thickness: 0.1pt))
   v(18pt)
 }
-
-
 
 #let paperlet(
   title: none,

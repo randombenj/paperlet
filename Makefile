@@ -3,7 +3,7 @@
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 VERSION := 0.0.0
-INSTALL_CMD := ln -s
+INSTALL_CMD := ln -sf
 
 ifdef DEVELOPMENT
 VERSION := $(git describe --always)
