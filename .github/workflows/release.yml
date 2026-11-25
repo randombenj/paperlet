@@ -1,13 +1,18 @@
-name: Build and Release Example
+name: Build and publish example paper
 
 on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -18,11 +23,13 @@ jobs:
 
       - name: Setup Typst
         uses: typst-community/setup-typst@v4
+        with:
+          typst-version: 0.15.1
 
       - name: Install paperlet package
         run: make install
 
-      - name: Build example
+      - name: Build example paper
         working-directory: example
         run: typst compile --font-path ../font example.typ example.pdf
 
@@ -32,11 +39,17 @@ jobs:
           name: example-pdf
           path: example/example.pdf
 
+      # Moves the `latest` release (and its tag) to this commit, so
+      # https://github.com/<repo>/releases/download/latest/example.pdf
+      # always serves the newest build.
       - name: Publish rolling release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: latest
-          name: Latest build
-          body: Automated build from ${{ github.sha }}
-          files: example/example.pdf
-          make_latest: 'true'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --cleanup-tag --yes || true
+          gh release create latest example/example.pdf \
+            --target "$GITHUB_SHA" \
+            --title "Latest build" \
+            --notes "Example paper built from $GITHUB_SHA." \
+            --latest

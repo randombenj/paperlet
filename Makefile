@@ -19,7 +19,7 @@ install:
 	@$(INSTALL_CMD) $(ROOT_DIR)/paperlet.typ  ~/.local/share/typst/packages/local/paperlet/$(VERSION)/
 	@$(INSTALL_CMD) $(ROOT_DIR)/typst.toml  ~/.local/share/typst/packages/local/paperlet/$(VERSION)/
 
-	@cp $(ROOT_DIR)/font/* ~/.local/share/fonts/
+	@cp $(ROOT_DIR)/font/*.ttf ~/.local/share/fonts/
 
 	@fc-cache -f
 
